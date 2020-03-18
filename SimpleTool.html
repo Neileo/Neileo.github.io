@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>tools</title>
+</head>
+
+<body>
+    <canvas id="main"></canvas>
+    <canvas id="button" style="position :absolute; z-index :10;left: 8px; top: 8px;"></canvas>
+
+    <form id="input">
+        <h>Simple Tool</h><br>水平分成多少段呢：<br><input type="text" id="widthsildes" placeholder="8"><br> 竖着分成多少段呢：
+        <br><input type="text" id="heightsildes" placeholder="6"><br>
+        <button type="button" id="submit">确认</button><br><br>
+        <!-- <button id="startEdit">开始标注</button>
+        <button id="endEdit">结束标注</button><br><br> -->
+        <input type="text" id="filename" placeholder="data">
+        <button type="button" id="ToCSV">导出csv</button><br>
+    </form>
+    <script type="text/javascript">
+        // 先绘制图片
+        var img = new Image();
+        var imgAdd = prompt("请输入文件路径：");
+        //img.crossOrigin = ""
+        var canvas = document.getElementById("main");
+
+        // 页面上需要呈现最终纹理的Canvas上下文
+        var iw = canvas.width / wSlides;
+        var ih = canvas.height / hSlides;
+        var buttonCanvas = document.getElementById("button")
+        var mask = buttonCanvas.getContext('2d');
+        var context = canvas.getContext('2d');
+
+        var wSlides = 8; // 水平方向上的段数
+        var hSlides = 6; // 竖直方向上的段数
+
+        var xstart = 0;
+        var ystart = 0;
+
+
+
+        function init() {
+
+            // var title = document.getElementById('title');
+            // title.style.position = "absolute";
+            // title.style.left = canvas.width + 24 + 'px';
+            // title.style.top = 16 + 'px';
+
+            var input = document.getElementById('input');
+            input.style.position = 'absolute';
+            input.style.left = canvas.width + 24 + 'px';
+            input.style.top = 50 + 'px';
+            input.style.fontSize = 'small';
+
+            // var submit = document.getElementById('submit');
+            // submit.style.position = 'absolute';
+            // submit.style.left = canvas.width + 24 + 'px';
+            // submit.style.top = 150 + 'px';
+
+            // var filename = document.getElementById('filename');
+            // filename.style.position = 'absolute';
+            // filename.style.left = canvas.width + 24 + 'px';
+            // filename.style.top = 200 + 'px';
+
+            // var ToCSV = document.getElementById('ToCSV');
+            // ToCSV.style.position = 'absolute';
+            // ToCSV.style.left = canvas.width + 24 + 'px';
+            // ToCSV.style.top = 230 + 'px';
+
+        }
+
+
+        buttonCanvas.onmousedown = function() {
+            buttonCanvas.onmousemove = function(e) {
+                var e = e || window.event;
+                context.globalCompositeOperation = 'destination-out';
+                context.beginPath();
+                context.arc(e.clientX, e.clientY, 20, 0, Math.PI * 2, false);
+                context.fillStyle = "rgba(128,128,64,1)";
+                context.fill();
+                console.log("123");
+            }
+        }
+
+        buttonCanvas.onmouseup = function() {
+            buttonCanvas.onmousemove = '';
+        }
+
+        // function createButton(wSlides, hSlides) {
+        //     var buttons = document.getElementsByClassName('nodes');
+        //     for (var i = buttons.length - 1; i >= 0; i--) {
+        //         buttons[i].parentNode.removeChild(buttons[i]);
+        //     }
+        //     var nodes = {};
+        //     for (var ix = 0; ix < wSlides; ix++)
+        //         for (var iy = 0; iy < hSlides; iy++) {
+        //             nodes['button' + ix + iy] = document.createElement('button');
+        //             nodes['button' + ix + iy].type = "button";
+        //             nodes['button' + ix + iy].value = 0;
+        //             nodes['button' + ix + iy].className = 'nodes';
+        //             nodes['button' + ix + iy].innerHTML = 0;
+        //             nodes['button' + ix + iy].x = ix;
+        //             nodes['button' + ix + iy].y = iy;
+        //             nodes['button' + ix + iy].id = ix + "" + iy;
+        //             nodes['button' + ix + iy].onclick = function() {
+        //                 changeNum(this.id)
+        //             };
+        //             nodes['button' + ix + iy].style.position = 'absolute';
+        //             var templeft = 8 + canvas.width / wSlides * ix;
+        //             nodes['button' + ix + iy].style.left = templeft + 'px';
+        //             var tempright = 8 + canvas.height / hSlides * iy;
+        //             nodes['button' + ix + iy].style.top = tempright + 'px';
+        //             nodes['button' + ix + iy].style.width = canvas.width / wSlides + 'px';
+        //             nodes['button' + ix + iy].style.height = canvas.height / hSlides + 'px';
+        //             nodes['button' + ix + iy].style.zIndex = '10';
+        //             nodes['button' + ix + iy].style.fontSize = 'larger';
+        //             nodes['button' + ix + iy].style.fontWeight = 'bold';
+        //             nodes['button' + ix + iy].style.background = 'transparent';
+        //             document.body.appendChild(nodes['button' + ix + iy]);
+        //         }
+        // }
+
+        document.getElementById('submit').onclick = function() {
+            wSlides = Number(document.getElementById('widthsildes').value);
+            hSlides = Number(document.getElementById('heightsildes').value);
+            //createButton(wSlides, hSlides);
+            console.log('submit');
+        }
+
+        function changeNum(id) {
+            var temp = document.getElementById(id).value;
+            if (temp == 0)
+                temp = 1;
+            else temp = 0;
+            document.getElementById(id).value = temp;
+            document.getElementById(id).innerHTML = temp;
+            console.log("click!");
+        }
+
+        document.getElementById('ToCSV').onclick = function() {
+            var data = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            for (var iy = 0; iy < hSlides; iy++) {
+                for (var ix = 0; ix < wSlides; ix++) {
+                    data += Number(document.getElementById(ix + "" + iy).innerHTML) + ",";
+                }
+                data += '\n'
+            }
+            var aaaa = "data:text/csv;charset=utf-8,\ufeff" + data;
+            var link = document.createElement("a");
+            link.setAttribute("href", aaaa);
+            var filename = document.getElementById('filename').value;
+            link.setAttribute("download", filename + ".csv");
+            link.click();
+        }
+
+
+        img.onload = function() {
+            // 我们创建一个Canvas元素
+            var canvasCreated = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvasCreated.width = img.width;
+            canvasCreated.height = img.height;
+
+            buttonCanvas.width = img.width;
+            buttonCanvas.height = img.height;
+            canvasCreated.getContext('2d').drawImage(this, 0, 0, canvas.width, canvas.height);
+            // 创建纹理并填充，顺便测试null是否渲染为'repeat'
+            var pattern = context.createPattern(canvasCreated, null);
+            context.fillStyle = pattern;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            // context.beginPath();
+            // context.strokeStyle = 'blue';
+            // for (var it = 0; it < iw; it++) {
+            //     context.moveTo(xstart, ystart);
+            //     context.lineTo(xstart, canvas.height);
+            //     context.stroke();
+            //     xstart += iw;
+            // }
+            // for (var it = 0; it < ih; it++) {
+            //     context.moveTo(xstart, ystart);
+            //     context.lineTo(0, ystart);
+            //     context.stroke();
+            //     ystart += ih;
+            // }
+            //createButton(wSlides, hSlides);
+            init();
+        };
+        img.src = imgAdd + '.png';
+    </script>
+
+</body>
+
+</html>
